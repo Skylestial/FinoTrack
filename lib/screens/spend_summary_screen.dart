@@ -15,14 +15,6 @@ import 'ai_chat_screen.dart';
 import 'notifications_screen.dart';
 import 'transactions_screen.dart';
 
-// Category ID → display name mapping (must match mock_data.dart)
-const _categoryMap = <String, String>{
-  'food': 'Food & Drinks',
-  'travel': 'Travel',
-  'shopping': 'Shopping',
-  'bills': 'Bills',
-  'entertainment': 'Entertainment',
-};
 
 class SpendSummaryScreen extends StatelessWidget {
   const SpendSummaryScreen({super.key, this.onMenuPressed});
@@ -34,14 +26,6 @@ class SpendSummaryScreen extends StatelessWidget {
     return BlocBuilder<AppBloc, AppState>(
       builder: (context, state) {
         final brightness = Theme.of(context).brightness;
-
-        // Filter transactions by selected category
-        final categoryName = _categoryMap[state.selectedCategoryId];
-        final filtered = categoryName == null
-            ? state.transactions
-            : state.transactions
-                .where((t) => t.category == categoryName)
-                .toList();
 
         return Scaffold(
           backgroundColor: ThemeColors.backgroundFor(brightness),
@@ -120,7 +104,7 @@ class SpendSummaryScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
 
-              // Horizontal category chips — tap to filter transactions below
+              // Horizontal category chips (visual selection only)
               SizedBox(
                 height: 150,
                 child: ListView.builder(
@@ -143,11 +127,9 @@ class SpendSummaryScreen extends StatelessWidget {
               ),
               const SizedBox(height: 18),
 
-              // Transactions header — shows count for selected category
+              // All 57 transactions — no filtering
               SectionHeader(
-                title: categoryName != null
-                    ? '$categoryName Transactions'
-                    : 'Recent Transactions',
+                title: 'Recent Transactions',
                 trailing: GestureDetector(
                   onTap: () {
                     Navigator.of(context).push(
@@ -157,13 +139,13 @@ class SpendSummaryScreen extends StatelessWidget {
                       ),
                     );
                   },
-                  child: Text('${filtered.length} items'),
+                  child: Text('${state.transactions.length} items'),
                 ),
               ),
               const SizedBox(height: 12),
 
-              // All filtered transactions
-              ...filtered.map(
+              // All transactions
+              ...state.transactions.map(
                 (item) => TransactionTile(
                   item: item,
                   onTap: () {
